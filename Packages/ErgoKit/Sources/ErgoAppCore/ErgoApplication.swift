@@ -42,6 +42,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsController = SettingsWindowController(host: host, services: services)
         settingsController.onResetPlacement = { [weak self] in self?.launcher.resetPlacement() }
 
+        services.launcher.onOpenSettings = { [weak self] id, management in
+            self?.launcher.hide()
+            self?.settingsController.show(page: .plugin(id), openManagement: management)
+        }
+
         hotkeys = HotkeyService(host: host, settings: services.appSettings)
         hotkeys.registerMain { [weak self] in self?.launcher.toggle() }
         host.onChange = { [weak self] in self?.hotkeys.syncPluginHotkeys() }

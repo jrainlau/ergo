@@ -34,7 +34,7 @@ struct SettingsRootView: View {
             case .permissions: PermissionsPage(host: host, services: services)
             case .plugin(let id):
                 if let reg = host.registration(for: id) {
-                    PluginDetailView(host: host, registration: reg, services: services).id(id)
+                    PluginDetailView(host: host, registration: reg, services: services, nav: nav).id(id)
                 }
             case .about: AboutPage()
             }

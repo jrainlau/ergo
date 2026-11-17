@@ -7,6 +7,7 @@ struct PluginDetailView: View {
     let host: PluginHost
     @Bindable var registration: PluginRegistration
     let services: CoreServices
+    let nav: SettingsNavigation
     @State private var showManagement = false
 
     var body: some View {
@@ -59,6 +60,8 @@ struct PluginDetailView: View {
         }
         .formStyle(.grouped)
         .navigationTitle(registration.manifest.name)
+        .task { consumePendingManagement() }
+        .onChange(of: nav.pendingManagement) { _, _ in consumePendingManagement() }
         .sheet(isPresented: $showManagement) {
             VStack(spacing: 0) {
                 registration.instance?.makeManagementView()
@@ -66,6 +69,13 @@ struct PluginDetailView: View {
                 HStack { Spacer(); Button("完成") { showManagement = false }.keyboardShortcut(.defaultAction) }.padding(12)
             }
             .frame(minWidth: 900, minHeight: 600)
+        }
+    }
+
+    private func consumePendingManagement() {
+        if nav.pendingManagement == registration.id, registration.status == .active {
+            nav.pendingManagement = nil
+            showManagement = true
         }
     }
 

@@ -4,7 +4,7 @@ import KeyboardShortcuts
 import ErgoPluginKit
 
 public extension KeyboardShortcuts.Name {
-    static let launcherToggle = Self("ergo.launcher.toggle", default: .init(.space, modifiers: [.option]))
+    static let launcherToggle = Self("ergo.launcher.toggle", initial: .init(.space, modifiers: [.option]))
 }
 
 public final class HotkeyService {
@@ -29,7 +29,7 @@ public final class HotkeyService {
         if case .combo(let c) = action.defaultTrigger {
             def = .init(carbonKeyCode: Int(c.keyCode), carbonModifiers: carbonModifiers(c.modifiers))
         }
-        return KeyboardShortcuts.Name("plugin.\(plugin.rawValue).\(action.id.rawValue)", default: def)
+        return KeyboardShortcuts.Name("plugin.\(plugin.rawValue).\(action.id.rawValue)", initial: def)
     }
 
     static func carbonModifiers(_ m: ModifierSet) -> Int {

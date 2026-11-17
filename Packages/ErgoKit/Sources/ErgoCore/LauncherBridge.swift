@@ -8,6 +8,7 @@ public final class LauncherBridge: LauncherControlling {
     public var onHide: () -> Void = {}
     public var onSetQuery: (String) -> Void = { _ in }
     public var onRefresh: () -> Void = {}
+    public var onOpenSettings: (PluginID, Bool) -> Void = { _, _ in }
 
     public init() {}
 
@@ -16,4 +17,5 @@ public final class LauncherBridge: LauncherControlling {
     public func hide() { onHide() }
     public func setQuery(_ text: String) { onSetQuery(text) }
     public func refresh() { onRefresh() }
+    public func openSettings(for plugin: PluginID, openManagement: Bool) { onOpenSettings(plugin, openManagement) }
 }

@@ -22,8 +22,11 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
         self.services = services
     }
 
-    public func show(page: SettingsPage? = nil) {
-        if let page { navigation.page = page }
+    public func show(page: SettingsPage? = nil, openManagement: Bool = false) {
+        if let page {
+            navigation.page = page
+            if openManagement, case .plugin(let id) = page { navigation.pendingManagement = id }
+        }
         if window == nil {
             let root = SettingsRootView(host: host, services: services, nav: navigation, resetPlacement: { [weak self] in self?.onResetPlacement() })
             let w = NSWindow(
@@ -57,4 +60,5 @@ public final class SettingsWindowController: NSObject, NSWindowDelegate {
 @Observable
 final class SettingsNavigation {
     var page: SettingsPage = .general
+    var pendingManagement: PluginID?
 }

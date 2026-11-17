@@ -71,6 +71,12 @@ public protocol LauncherControlling: AnyObject {
     func hide()
     func setQuery(_ text: String)
     func refresh()
+    /// 打开设置窗口并定位到某个插件；openManagement 为 true 时直接打开其管理界面。
+    func openSettings(for plugin: PluginID, openManagement: Bool)
+}
+
+public extension LauncherControlling {
+    func openSettings(for plugin: PluginID, openManagement: Bool) {}
 }
 
 @MainActor

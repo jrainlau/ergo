@@ -66,6 +66,7 @@ let package = Package(
         tests("ErgoCoreTests", ["ErgoCore", kit, support]),
         tests("ErgoLauncherTests", ["ErgoLauncher", "ErgoCore", kit]),
         tests("PluginCalculatorTests", ["PluginCalculator", kit, support]),
+        tests("PluginFileSearchTests", ["PluginFileSearch", kit, support]),
         tests("PluginCurrencyTests", ["PluginCurrency", kit, support]),
         tests("PluginClipboardTests", ["PluginClipboard", kit, support]),
         tests("PluginAIChatTests", ["PluginAIChat", kit, support]),
