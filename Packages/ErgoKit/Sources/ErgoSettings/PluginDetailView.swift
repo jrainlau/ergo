@@ -68,7 +68,7 @@ struct PluginDetailView: View {
                 Divider()
                 HStack { Spacer(); Button("完成") { showManagement = false }.keyboardShortcut(.defaultAction) }.padding(12)
             }
-            .frame(minWidth: 900, minHeight: 600)
+            .frame(minWidth: 800, minHeight: 560)
         }
     }
 

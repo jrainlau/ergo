@@ -97,7 +97,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self.launcher.show(scope: scopeName.map { PluginID($0) }, query: queryText)
                 case "hide": self.launcher.hide()
                 case "query": self.launcher.model.query = queryText ?? ""
-                case "settings": self.settingsController.show()
+                case "settings":
+                    if let scopeName { self.settingsController.show(page: .plugin(PluginID(scopeName)), openManagement: cmd) } else { self.settingsController.show() }
                 case "text":
                     if let w = NSApp.windows.first(where: { $0 is NSPanel && $0.isVisible }), let tv = w.firstResponder as? NSTextView {
                         tv.insertText(queryText ?? "", replacementRange: tv.selectedRange())

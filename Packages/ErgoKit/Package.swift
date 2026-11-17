@@ -11,6 +11,8 @@ let plain: [SwiftSetting] = [
     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
 ]
 
+let res: [Resource] = [.process("Resources")]
+
 let kit: Target.Dependency = "ErgoPluginKit"
 let support: Target.Dependency = "ErgoPluginSupport"
 let ui: Target.Dependency = "ErgoUI"
@@ -19,7 +21,7 @@ let shortcuts: Target.Dependency = .product(name: "KeyboardShortcuts", package: 
 let markdown: Target.Dependency = .product(name: "MarkdownUI", package: "swift-markdown-ui")
 
 func plugin(_ name: String, extra: [Target.Dependency] = []) -> Target {
-    .target(name: name, dependencies: [kit, support, ui] + extra, swiftSettings: common)
+    .target(name: name, dependencies: [kit, support, ui] + extra, resources: res, swiftSettings: common)
 }
 
 func tests(_ name: String, _ deps: [Target.Dependency]) -> Target {
@@ -37,12 +39,12 @@ let package = Package(
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.4.0"),
     ],
     targets: [
-        .target(name: "ErgoPluginKit", swiftSettings: plain),
-        .target(name: "ErgoPluginSupport", dependencies: [kit], swiftSettings: plain),
-        .target(name: "ErgoUI", dependencies: [kit, support], swiftSettings: common),
-        .target(name: "ErgoCore", dependencies: [kit, support, ui, grdb, shortcuts], swiftSettings: common),
-        .target(name: "ErgoLauncher", dependencies: [kit, support, ui, "ErgoCore", shortcuts], swiftSettings: common),
-        .target(name: "ErgoSettings", dependencies: [kit, support, ui, "ErgoCore", shortcuts], swiftSettings: common),
+        .target(name: "ErgoPluginKit", resources: res, swiftSettings: plain),
+        .target(name: "ErgoPluginSupport", dependencies: [kit], resources: res, swiftSettings: plain),
+        .target(name: "ErgoUI", dependencies: [kit, support], resources: res, swiftSettings: common),
+        .target(name: "ErgoCore", dependencies: [kit, support, ui, grdb, shortcuts], resources: res, swiftSettings: common),
+        .target(name: "ErgoLauncher", dependencies: [kit, support, ui, "ErgoCore", shortcuts], resources: res, swiftSettings: common),
+        .target(name: "ErgoSettings", dependencies: [kit, support, ui, "ErgoCore", shortcuts], resources: res, swiftSettings: common),
 
         plugin("PluginCalculator"),
         plugin("PluginAppLauncher"),
@@ -59,6 +61,7 @@ let package = Package(
                 "PluginCalculator", "PluginAppLauncher", "PluginFileSearch", "PluginClipboard",
                 "PluginCurrency", "PluginSnippets", "PluginAIChat",
             ],
+            resources: res,
             swiftSettings: common
         ),
 
