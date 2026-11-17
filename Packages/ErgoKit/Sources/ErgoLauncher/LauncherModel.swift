@@ -340,6 +340,11 @@ public final class LauncherModel {
         if let p = inlinePanel, p.panel.handleKey(press) { return true }
 
         let mods = press.modifiers
+        // 带修饰键的快捷键：优先匹配选中项的动作
+        if !mods.isEmpty, let item = selectedItem, let a = item.item.actions.first(where: { $0.shortcut == press }) {
+            perform(a, on: item)
+            return true
+        }
         switch press.key {
         case .up where mods.isEmpty: move(-1); return true
         case .down where mods.isEmpty: move(1); return true
