@@ -7,6 +7,10 @@ let common: [SwiftSetting] = [
     .enableUpcomingFeature("InferIsolatedConformances"),
 ]
 
+let plain: [SwiftSetting] = [
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+]
+
 let kit: Target.Dependency = "ErgoPluginKit"
 let support: Target.Dependency = "ErgoPluginSupport"
 let ui: Target.Dependency = "ErgoUI"
@@ -33,8 +37,8 @@ let package = Package(
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.4.0"),
     ],
     targets: [
-        .target(name: "ErgoPluginKit", swiftSettings: common),
-        .target(name: "ErgoPluginSupport", dependencies: [kit], swiftSettings: common),
+        .target(name: "ErgoPluginKit", swiftSettings: plain),
+        .target(name: "ErgoPluginSupport", dependencies: [kit], swiftSettings: plain),
         .target(name: "ErgoUI", dependencies: [kit, support], swiftSettings: common),
         .target(name: "ErgoCore", dependencies: [kit, support, ui, grdb, shortcuts], swiftSettings: common),
         .target(name: "ErgoLauncher", dependencies: [kit, support, ui, "ErgoCore", shortcuts], swiftSettings: common),
