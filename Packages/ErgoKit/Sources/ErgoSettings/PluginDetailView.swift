@@ -153,6 +153,7 @@ struct HotkeyActionSection: View {
                 KeyboardShortcuts.Recorder("快捷键", name: HotkeyService.name(plugin: registration.id, action: action)) { _ in
                     host.onChange()
                 }
+                .keyboardShortcutsConflictPolicy(.init(menuItem: .allow))
             case .doubleTap(let key):
                 Picker("修饰键", selection: Binding(
                     get: { key },

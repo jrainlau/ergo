@@ -32,6 +32,7 @@ struct GeneralPage: View {
             }
             Section {
                 KeyboardShortcuts.Recorder("唤起 Ergo", name: .launcherToggle)
+                    .keyboardShortcutsConflictPolicy(.init(menuItem: .allow))
             } header: {
                 Text("快捷键")
             } footer: {

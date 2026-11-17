@@ -86,6 +86,7 @@ private struct OnboardingView: View {
             Text("一个由插件驱动的启动器。先设置唤起它的全局快捷键：")
                 .foregroundStyle(.secondary)
             KeyboardShortcuts.Recorder("唤起 Ergo", name: .launcherToggle)
+                .keyboardShortcutsConflictPolicy(.init(menuItem: .allow))
             Text("⌘Space 被“聚焦搜索”占用，如需使用请先在系统设置里关闭它。")
                 .font(.caption).foregroundStyle(.tertiary)
         }
