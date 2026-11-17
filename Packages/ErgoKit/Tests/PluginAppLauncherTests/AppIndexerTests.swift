@@ -35,3 +35,27 @@ import Testing
         #expect(try JSONDecoder().decode([AppEntry].self, from: data) == e)
     }
 }
+
+@Suite struct SymlinkedAppTests {
+    @Test func symlinkedAppsAreIndexed() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("ergo-apps-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        try FileManager.default.createSymbolicLink(at: dir.appendingPathComponent("Calc.app"), withDestinationURL: URL(fileURLWithPath: "/System/Applications/Calculator.app"))
+        let sub = dir.appendingPathComponent("Nested")
+        try FileManager.default.createDirectory(at: sub, withIntermediateDirectories: true)
+        try FileManager.default.createSymbolicLink(at: sub.appendingPathComponent("Clock.app"), withDestinationURL: URL(fileURLWithPath: "/System/Applications/Clock.app"))
+        let found = AppIndexer.scan(directories: [dir.path], depth: 1, excludedIDs: [])
+        #expect(found.contains { $0.path.hasSuffix("Calc.app") })
+        #expect(found.contains { $0.path.hasSuffix("Clock.app") })
+        #expect(AppIndexer.scan(directories: [dir.path], depth: 0, excludedIDs: []).filter { $0.path.hasSuffix("Clock.app") }.isEmpty)
+    }
+}
+
+@Suite struct HiddenFlagTests {
+    @Test func safariIndexedWhenPresent() {
+        guard FileManager.default.fileExists(atPath: "/Applications/Safari.app") else { return }
+        let found = AppIndexer.scan(directories: ["/Applications"], depth: 0, excludedIDs: [])
+        #expect(found.contains { $0.name == "Safari" })
+    }
+}

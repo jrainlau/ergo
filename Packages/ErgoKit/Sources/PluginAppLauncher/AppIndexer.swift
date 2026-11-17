@@ -9,7 +9,7 @@ public nonisolated struct AppEntry: Codable, Equatable, Sendable {
     public var pinyinFull: String
     public var pinyinInitials: String
 
-    public var url: URL { URL(fileURLWithPath: path) }
+    public var url: URL { URL(fileURLWithPath: path).resolvingSymlinksInPath() }
 }
 
 public nonisolated enum AppIndexer {
@@ -38,16 +38,20 @@ public nonisolated enum AppIndexer {
             result.append(entry)
         }
 
-        for dir in directories {
-            let root = URL(fileURLWithPath: expand(dir), isDirectory: true)
-            guard let e = fm.enumerator(
-                at: root, includingPropertiesForKeys: [.isDirectoryKey],
-                options: [.skipsHiddenFiles, .skipsPackageDescendants]
-            ) else { continue }
-            for case let url as URL in e {
-                if e.level > depth + 1 { e.skipDescendants(); continue }
-                if url.pathExtension == "app" { add(url) }
+        // 手动遍历且不使用 skipsHiddenFiles：/Applications/Safari.app 是带 hidden 标志的符号链接，枚举器会漏掉它。
+        func walk(_ dir: URL, level: Int) {
+            guard let items = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: []) else { return }
+            for url in items where !url.lastPathComponent.hasPrefix(".") {
+                if url.pathExtension == "app" {
+                    add(url)
+                } else if level < depth {
+                    var isDir: ObjCBool = false
+                    if fm.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue { walk(url, level: level + 1) }
+                }
             }
+        }
+        for dir in directories {
+            walk(URL(fileURLWithPath: expand(dir), isDirectory: true), level: 0)
         }
         let finder = URL(fileURLWithPath: "/System/Library/CoreServices/Finder.app")
         if fm.fileExists(atPath: finder.path) { add(finder) }

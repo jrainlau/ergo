@@ -79,5 +79,6 @@ public struct ResultRowView: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel([item.title, item.subtitle].compactMap { $0 }.joined(separator: "，"))
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

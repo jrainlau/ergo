@@ -1,4 +1,5 @@
 import AppKit
+import OSLog
 import SwiftUI
 import ErgoCore
 import ErgoPluginKit
@@ -73,8 +74,19 @@ public final class LauncherWindowController: NSObject {
         if panel.isVisible { hide() } else { show(scope: nil, query: nil) }
     }
 
+    private static let signposter = OSSignposter(subsystem: "com.jrainlau.ergo", category: "launcher")
+    private static let log = Logger(subsystem: "com.jrainlau.ergo", category: "launcher")
+
     public func show(scope: PluginID?, query: String?) {
         let wasVisible = panel.isVisible
+        let signpostID = Self.signposter.makeSignpostID()
+        let state = Self.signposter.beginInterval("show", id: signpostID)
+        let started = ContinuousClock.now
+        defer {
+            Self.signposter.endInterval("show", state)
+            let ms = Double((ContinuousClock.now - started).components.attoseconds) / 1e15
+            Self.log.debug("show took \(ms, format: .fixed(precision: 1)) ms")
+        }
         if !wasVisible {
             services.frontApp.captureNow()
             model.resetForShow(keepQuery: services.appSettings.value.keepLastQuery)
