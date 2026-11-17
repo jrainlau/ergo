@@ -1,4 +1,5 @@
 import ErgoPluginKit
+import PluginAIChat
 import PluginAppLauncher
 import PluginCalculator
 import PluginClipboard
@@ -16,5 +17,6 @@ enum PluginCatalog {
         CurrencyPlugin.self,
         ClipboardPlugin.self,
         SnippetsPlugin.self,
+        AIChatPlugin.self,
     ]
 }

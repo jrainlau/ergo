@@ -338,6 +338,12 @@ public final class LauncherModel {
         if showActionPanel { return handleActionPanel(press) }
         if let s = scope, s.scope.handleKey(press) { return true }
         if let p = inlinePanel, p.panel.handleKey(press) { return true }
+        // 自带输入框的自定义作用域（如 AI 对话）：其余按键交给它自己的文本框
+        if let s = scope, case .custom(_, false) = s.scope.style {
+            if press.key == .escape { requestHide(); return true }
+            if press.modifiers == .command, press.key == .character(",") { requestOpenSettings(); return true }
+            return false
+        }
 
         let mods = press.modifiers
         // 带修饰键的快捷键：优先匹配选中项的动作

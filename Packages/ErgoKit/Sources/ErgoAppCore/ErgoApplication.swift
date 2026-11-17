@@ -98,6 +98,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 case "hide": self.launcher.hide()
                 case "query": self.launcher.model.query = queryText ?? ""
                 case "settings": self.settingsController.show()
+                case "text":
+                    if let w = NSApp.windows.first(where: { $0 is NSPanel && $0.isVisible }), let tv = w.firstResponder as? NSTextView {
+                        tv.insertText(queryText ?? "", replacementRange: tv.selectedRange())
+                    }
+                case "realkey":
+                    if let w = NSApp.windows.first(where: { $0 is NSPanel && $0.isVisible }) {
+                        let code: UInt16 = keyName == "esc" ? 53 : 36
+                        let chars = keyName == "esc" ? "\u{1B}" : "\r"
+                        let mods: NSEvent.ModifierFlags = cmd ? .command : []
+                        for type in [NSEvent.EventType.keyDown, .keyUp] {
+                            if let ev = NSEvent.keyEvent(with: type, location: .zero, modifierFlags: mods, timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: w.windowNumber, context: nil, characters: chars, charactersIgnoringModifiers: chars, isARepeat: false, keyCode: code) {
+                                NSApp.sendEvent(ev)
+                            }
+                        }
+                    }
                 case "key":
                     let name = keyName
                     let mods: ModifierSet = cmd ? .command : []
