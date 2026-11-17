@@ -21,10 +21,10 @@ public enum ActionOutcome {
 public struct ResultAction: Identifiable {
     public var id: String
     public var title: String
-    public var shortcut: KeyPress?
+    public var shortcut: KeyStroke?
     public var perform: () async -> ActionOutcome
 
-    public init(id: String, title: String, shortcut: KeyPress? = nil, perform: @escaping () async -> ActionOutcome) {
+    public init(id: String, title: String, shortcut: KeyStroke? = nil, perform: @escaping () async -> ActionOutcome) {
         self.id = id
         self.title = title
         self.shortcut = shortcut

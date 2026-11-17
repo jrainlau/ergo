@@ -13,13 +13,13 @@ public protocol PluginScope: AnyObject {
     var style: ScopeStyle { get }
     func items(for query: SearchQuery) async throws -> [ResultItem]
     func makeCustomView() -> AnyView
-    func handleKey(_ press: KeyPress) -> Bool
+    func handleKey(_ press: KeyStroke) -> Bool
     func didClose()
 }
 
 public extension PluginScope {
     func items(for query: SearchQuery) async throws -> [ResultItem] { [] }
     func makeCustomView() -> AnyView { AnyView(EmptyView()) }
-    func handleKey(_ press: KeyPress) -> Bool { false }
+    func handleKey(_ press: KeyStroke) -> Bool { false }
     func didClose() {}
 }

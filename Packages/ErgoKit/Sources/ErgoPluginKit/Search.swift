@@ -37,9 +37,9 @@ public struct InlinePanel {
     public var height: CGFloat
     public var exclusive: Bool
     public var view: AnyView
-    public var handleKey: (KeyPress) -> Bool
+    public var handleKey: (KeyStroke) -> Bool
 
-    public init(id: String, height: CGFloat, exclusive: Bool = true, view: AnyView, handleKey: @escaping (KeyPress) -> Bool = { _ in false }) {
+    public init(id: String, height: CGFloat, exclusive: Bool = true, view: AnyView, handleKey: @escaping (KeyStroke) -> Bool = { _ in false }) {
         self.id = id
         self.height = height
         self.exclusive = exclusive

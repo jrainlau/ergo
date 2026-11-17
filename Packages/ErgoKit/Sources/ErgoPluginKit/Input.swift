@@ -43,7 +43,7 @@ public enum LauncherKey: Hashable, Sendable {
     case character(Character)
 }
 
-public struct KeyPress: Hashable, Sendable {
+public struct KeyStroke: Hashable, Sendable {
     public var key: LauncherKey
     public var modifiers: ModifierSet
     public init(key: LauncherKey, modifiers: ModifierSet = []) {
