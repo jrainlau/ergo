@@ -11,7 +11,7 @@
 
 ### 下载 DMG（推荐）
 
-到 [Releases](https://github.com/jrainlau/ergo/releases) 下载最新的 `Ergo-*.dmg`，打开后把 **Ergo** 拖进「应用程序」。
+到 [Releases](https://github.com/jrainlau/ergo/releases) 下载最新的 `Ergo-x.y.z.dmg`，打开后把 **Ergo** 拖进「应用程序」。
 
 发布的构建使用 ad-hoc 签名（没有 Apple 开发者证书），首次打开会被 Gatekeeper 拦截。在终端执行一次：
 
@@ -113,11 +113,11 @@ Packages/ErgoKit/
 
 | 触发 | 结果 |
 |---|---|
-| 推送到 `main` | 运行测试，构建 Release，打包 DMG，发布预发布版本 `build-<序号>` |
-| 推送 `v*` 标签（如 `git tag v0.2.0 && git push origin v0.2.0`） | 同上，但发布为正式版本 |
+| 推送到 `main` | 运行测试，构建 Release，打包 DMG，发布预发布版本，版本号和 tag 都是 `x.y.<序号>`（如 `0.1.37`） |
+| 推送 `x.y.z` 标签（如 `git tag 0.2.0 && git push origin 0.2.0`） | 同上，但以标签为版本号，发布为正式版本 |
 | 手动运行（workflow_dispatch） | 同推送到 `main` |
 
-DMG 与对应的 `.sha256` 会作为 Release 附件上传，同时保存为 Actions 构建产物。版本号取自 `project.yml` 里的 `MARKETING_VERSION`，发新版本前先改它。
+DMG 与对应的 `.sha256` 会作为 Release 附件上传，同时保存为 Actions 构建产物。版本号和 tag 一律是 `x.y.z`，**不带 `v` 前缀**，不符合格式的标签会让构建失败。推送到 `main` 时，`x.y` 取自 `project.yml` 里的 `MARKETING_VERSION`，`z` 是工作流的运行序号；要升 `x.y` 就改这个值。构建时版本号会写入应用本身（`CFBundleShortVersionString`），所以应用里显示的版本和 tag 一致。
 
 CI 构建使用 ad-hoc 签名；如果以后有 Developer ID 证书，可以在工作流里加上签名和公证步骤，用户就不再需要手动去除隔离属性了。
 

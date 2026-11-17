@@ -1,11 +1,12 @@
 name: Build & Release
 
-# 推送到 main：构建并发布一个预发布版本（build-<序号>）。
-# 推送 v* 标签（如 v0.2.0）：构建并发布正式版本。
+# 版本号一律是 x.y.z，tag 也是 x.y.z（不带 v 前缀）。
+# 推送到 main：版本为 <project.yml 的 MARKETING_VERSION 的 x.y>.<本次运行序号>，发布为预发布版本。
+# 推送 x.y.z 标签（如 0.2.0）：以标签为版本，发布为正式版本。
 on:
   push:
     branches: [main]
-    tags: ["v*"]
+    tags: ["[0-9]+.[0-9]+.[0-9]+"]
   workflow_dispatch:
 
 permissions:
@@ -34,6 +35,28 @@ jobs:
       - name: 安装 XcodeGen
         run: brew install xcodegen
 
+      - name: 计算版本号
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
+            PRERELEASE=false
+          else
+            BASE=$(grep -E '^\s+MARKETING_VERSION:' project.yml | sed -E 's/.*"([^"]+)".*/\1/')
+            VERSION="${BASE%.*}.${GITHUB_RUN_NUMBER}"
+            PRERELEASE=true
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "版本号必须是 x.y.z，得到：$VERSION" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=Ergo $VERSION" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "dmg=Ergo-$VERSION.dmg" >> "$GITHUB_OUTPUT"
+          echo "版本：$VERSION（预发布：$PRERELEASE）"
+
       - name: 运行测试
         run: swift test --package-path Packages/ErgoKit
 
@@ -41,6 +64,8 @@ jobs:
         run: xcodegen generate
 
       - name: 构建 Release（不签名）
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
           xcodebuild \
             -project Ergo.xcodeproj \
@@ -50,6 +75,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             build
 
       - name: Ad-hoc 签名
@@ -57,26 +84,6 @@ jobs:
           APP="build/Build/Products/Release/Ergo.app"
           codesign --force --deep --sign - "$APP"
           codesign --verify --deep --strict "$APP"
-
-      - name: 计算版本号
-        id: version
-        run: |
-          MARKETING=$(grep -m1 'MARKETING_VERSION' project.yml | sed -E 's/.*"([^"]+)".*/\1/')
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-            NAME="Ergo ${TAG#v}"
-            PRERELEASE=false
-            DMG="Ergo-${TAG#v}.dmg"
-          else
-            TAG="build-${GITHUB_RUN_NUMBER}"
-            NAME="Ergo ${MARKETING} (build ${GITHUB_RUN_NUMBER})"
-            PRERELEASE=true
-            DMG="Ergo-${MARKETING}-build${GITHUB_RUN_NUMBER}.dmg"
-          fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
-          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
 
       - name: 打包 DMG
         env:
