@@ -17,11 +17,21 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         self.services = services
     }
 
+    private static func menuBarImage() -> NSImage? {
+        guard let url = Bundle.module.url(forResource: "MenuBarIcon", withExtension: "png"),
+              let image = NSImage(contentsOf: url) else {
+            return NSImage(systemSymbolName: "command.square", accessibilityDescription: "Ergo")
+        }
+        image.size = NSSize(width: 18, height: 18)
+        image.isTemplate = true
+        image.accessibilityDescription = "Ergo"
+        return image
+    }
+
     func setVisible(_ visible: Bool) {
         if visible, item == nil {
             let i = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-            i.button?.image = NSImage(systemSymbolName: "command.square", accessibilityDescription: "Ergo")
-            i.button?.image?.isTemplate = true
+            i.button?.image = Self.menuBarImage()
             let menu = NSMenu()
             menu.delegate = self
             i.menu = menu
