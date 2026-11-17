@@ -13,3 +13,6 @@ Config/Signing.local.xcconfig
 
 # Logs
 *.log
+
+# Release artifacts
+dist/
