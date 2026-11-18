@@ -43,7 +43,7 @@ public final class LauncherWindowController: NSObject {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
         panel.backgroundColor = .clear
         panel.isOpaque = false
-        panel.hasShadow = true
+        panel.hasShadow = false
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
         panel.isMovableByWindowBackground = true
@@ -201,37 +201,36 @@ public final class LauncherWindowController: NSObject {
         guard appliedMaterial != m else { return }
         appliedMaterial = m
         hosting.removeFromSuperview()
-        switch m {
-        case .regular, .clear:
-            // NSGlassEffectView(Liquid Glass) 会在四周渲染一圈深色 rim（黑边），
-            // 且 macOS 26 SDK 没有公开 API 可关闭。改用 NSVisualEffectView 保留
-            // 毛玻璃观感，同时去掉这圈黑边；两种材质通过不同 material 区分。
-            let v = NSVisualEffectView()
-            v.material = m == .clear ? .underWindowBackground : .popover
-            v.blendingMode = .behindWindow
-            v.state = .active
-            v.wantsLayer = true
-            v.layer?.cornerRadius = Theme.panelCornerRadius
-            v.layer?.cornerCurve = .continuous
-            v.layer?.masksToBounds = true
-            hosting.frame = v.bounds
-            hosting.autoresizingMask = [.width, .height]
-            v.addSubview(hosting)
-            panel.contentView = v
-        case .opaque:
-            let v = NSVisualEffectView()
-            v.material = .hudWindow
-            v.blendingMode = .behindWindow
-            v.state = .active
-            v.wantsLayer = true
-            v.layer?.cornerRadius = Theme.panelCornerRadius
-            v.layer?.cornerCurve = .continuous
-            v.layer?.masksToBounds = true
-            hosting.frame = v.bounds
-            hosting.autoresizingMask = [.width, .height]
-            v.addSubview(hosting)
-            panel.contentView = v
+        // NSGlassEffectView(Liquid Glass) 四周自带深色 rim（黑边），SDK 无公开开关，
+        // 因此统一用 NSVisualEffectView；三档材质仅 material 不同。
+        let material: NSVisualEffectView.Material = switch m {
+        case .regular: .popover
+        case .clear: .underWindowBackground
+        case .opaque: .hudWindow
         }
+        let v = NSVisualEffectView()
+        v.material = material
+        v.blendingMode = .behindWindow
+        v.state = .active
+        // behindWindow 模糊按整个窗口矩形渲染，layer.cornerRadius 裁不掉，
+        // 会在圆角外露出方形玻璃边；必须用 maskImage 才能同时约束模糊与窗口阴影。
+        v.maskImage = Self.roundedMask(radius: Theme.panelCornerRadius)
+        hosting.frame = v.bounds
+        hosting.autoresizingMask = [.width, .height]
+        v.addSubview(hosting)
+        panel.contentView = v
+    }
+
+    private static func roundedMask(radius: CGFloat) -> NSImage {
+        let edge = radius * 2 + 1
+        let image = NSImage(size: NSSize(width: edge, height: edge), flipped: false) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: radius, left: radius, bottom: radius, right: radius)
+        image.resizingMode = .stretch
+        return image
     }
 
     // MARK: 键盘
