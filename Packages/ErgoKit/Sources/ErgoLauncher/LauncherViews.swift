@@ -56,10 +56,7 @@ struct InputRow: View {
                 placeholder: model.scope?.scope.placeholder ?? "搜索应用、文件、计算…",
                 model: model
             )
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 32, height: 32)
-                .accessibilityHidden(true)
+            .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 18)
         .frame(height: Theme.inputHeight)

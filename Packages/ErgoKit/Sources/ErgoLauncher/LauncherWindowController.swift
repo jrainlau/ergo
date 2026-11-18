@@ -203,11 +203,21 @@ public final class LauncherWindowController: NSObject {
         hosting.removeFromSuperview()
         switch m {
         case .regular, .clear:
-            let glass = NSGlassEffectView()
-            glass.cornerRadius = Theme.panelCornerRadius
-            glass.style = m == .clear ? .clear : .regular
-            glass.contentView = hosting
-            panel.contentView = glass
+            // NSGlassEffectView(Liquid Glass) 会在四周渲染一圈深色 rim（黑边），
+            // 且 macOS 26 SDK 没有公开 API 可关闭。改用 NSVisualEffectView 保留
+            // 毛玻璃观感，同时去掉这圈黑边；两种材质通过不同 material 区分。
+            let v = NSVisualEffectView()
+            v.material = m == .clear ? .underWindowBackground : .popover
+            v.blendingMode = .behindWindow
+            v.state = .active
+            v.wantsLayer = true
+            v.layer?.cornerRadius = Theme.panelCornerRadius
+            v.layer?.cornerCurve = .continuous
+            v.layer?.masksToBounds = true
+            hosting.frame = v.bounds
+            hosting.autoresizingMask = [.width, .height]
+            v.addSubview(hosting)
+            panel.contentView = v
         case .opaque:
             let v = NSVisualEffectView()
             v.material = .hudWindow
