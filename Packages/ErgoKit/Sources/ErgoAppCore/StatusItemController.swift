@@ -44,6 +44,17 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        populate(menu)
+    }
+
+    /// 构建与菜单栏相同的菜单，供启动器右上角右键入口复用。
+    func buildMenu() -> NSMenu {
+        let menu = NSMenu()
+        populate(menu)
+        return menu
+    }
+
+    private func populate(_ menu: NSMenu) {
         let open = NSMenuItem(title: "打开 Ergo", action: #selector(openLauncher), keyEquivalent: "")
         open.target = self
         if let sc = KeyboardShortcuts.getShortcut(for: .launcherToggle) {

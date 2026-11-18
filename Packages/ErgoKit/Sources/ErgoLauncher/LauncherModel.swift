@@ -43,6 +43,8 @@ public final class LauncherModel {
     @ObservationIgnored public var requestHide: () -> Void = {}
     @ObservationIgnored public var requestOpenSettings: () -> Void = {}
     @ObservationIgnored public var onLayoutChange: () -> Void = {}
+    /// 右上角入口右键时弹出菜单，由 AppDelegate 注入菜单栏菜单。
+    @ObservationIgnored public var contextMenuProvider: (() -> NSMenu)?
 
     // MARK: 内部
     @ObservationIgnored weak var textField: NSTextField?

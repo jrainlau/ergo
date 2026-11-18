@@ -55,6 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.onOpenLauncher = { [weak self] in self?.launcher.show(scope: nil, query: nil) }
         statusItem.onOpenSettings = { [weak self] in self?.openSettings() }
         statusItem.onOpenScope = { [weak self] id in self?.launcher.show(scope: id, query: nil) }
+        launcher.model.contextMenuProvider = { [weak self] in self?.statusItem.buildMenu() ?? NSMenu() }
 
         applySettings()
         observeContinuously(

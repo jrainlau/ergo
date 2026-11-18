@@ -57,6 +57,9 @@ struct InputRow: View {
                 model: model
             )
             .frame(maxWidth: .infinity)
+            if model.contextMenuProvider != nil {
+                ContextMenuButton(model: model)
+            }
         }
         .padding(.horizontal, 18)
         .frame(height: Theme.inputHeight)
@@ -73,6 +76,38 @@ struct ScopeChip: View {
             .padding(.vertical, 4)
             .background(Capsule().fill(Color.accentColor.opacity(0.2)))
             .foregroundStyle(Color.accentColor)
+    }
+}
+
+/// 输入行右侧不可见热区：右键弹出与菜单栏相同的菜单，左键仍可拖动窗口。
+struct ContextMenuButton: NSViewRepresentable {
+    @Bindable var model: LauncherModel
+
+    func makeNSView(context: Context) -> ContextMenuButtonView {
+        let v = ContextMenuButtonView()
+        v.provider = { [weak model] in model?.contextMenuProvider?() }
+        return v
+    }
+
+    func updateNSView(_ nsView: ContextMenuButtonView, context: Context) {
+        nsView.provider = { [weak model] in model?.contextMenuProvider?() }
+    }
+}
+
+final class ContextMenuButtonView: NSView {
+    var provider: (() -> NSMenu?)?
+
+    override var intrinsicContentSize: NSSize { NSSize(width: 32, height: 32) }
+    override var mouseDownCanMoveWindow: Bool { false }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    override func mouseDown(with event: NSEvent) {
+        window?.performDrag(with: event)
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        guard let menu = provider?() else { return }
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
     }
 }
 
