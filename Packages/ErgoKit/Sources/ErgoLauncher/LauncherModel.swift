@@ -104,6 +104,7 @@ public final class LauncherModel {
     public func resetForShow(keepQuery: Bool) {
         exitScope(silently: true)
         showActionPanel = false
+        selectionAnchorID = nil
         if !keepQuery {
             setQuerySilently("")
             clearResults()
@@ -170,6 +171,7 @@ public final class LauncherModel {
         results = []
         inlinePanel = nil
         selectedIndex = 0
+        selectionAnchorID = nil
     }
 
     public func refresh() {

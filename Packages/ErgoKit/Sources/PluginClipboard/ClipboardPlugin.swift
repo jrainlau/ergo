@@ -100,17 +100,8 @@ final class ClipboardScope: PluginScope {
     }
 
     func items(for query: SearchQuery) async throws -> [ResultItem] {
-        var out: [ResultItem] = []
-        if settings.value.showSnippetsEntry, query.text.isEmpty {
-            out.append(ResultItem(
-                id: "snippets-entry", title: "常用语", icon: .symbol("text.quote"), score: 1,
-                actions: [ResultAction(id: "open", title: "打开常用语") { .openScope("ergo.snippets") }],
-                preview: { AnyView(Text("浏览并插入常用语").foregroundStyle(.secondary).frame(maxWidth: .infinity, maxHeight: .infinity)) }
-            ))
-        }
         let clips = (try? store.search(query.text)) ?? []
-        for clip in clips { out.append(makeItem(clip)) }
-        return out
+        return clips.map(makeItem)
     }
 
     private func makeItem(_ clip: ClipItem) -> ResultItem {
@@ -226,7 +217,6 @@ struct ClipboardSettingsView: View {
                 LabeledContent(String(format: "轮询间隔 %.2f 秒", settings.value.pollInterval)) {
                     Slider(value: $settings.value.pollInterval, in: 0.25...1.0, step: 0.05).frame(width: 200)
                 }
-                Toggle("在列表顶部显示“常用语”入口", isOn: $settings.value.showSnippetsEntry)
                 if context.permissions.status(.pasteboard) != .granted {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("系统可能会在读取剪贴板时提示。建议在 系统设置 › 隐私与安全性 中将 Ergo 的“粘贴板”设为“始终允许”。")
