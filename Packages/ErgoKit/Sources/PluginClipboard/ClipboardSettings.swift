@@ -14,7 +14,6 @@ public nonisolated struct ClipboardSettings: Codable, Equatable, Sendable {
         "com.apple.keychainaccess", "com.apple.Passwords", "com.1password.1password", "com.bitwarden.desktop",
     ]
     public var pollInterval: Double = 0.5
-    public var showSnippetsEntry = true
 
     public init() {}
 
