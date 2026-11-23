@@ -105,6 +105,7 @@ public nonisolated enum UpdateError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
+        case .http(let code) where code == 403 || code == 429: "GitHub 请求过于频繁（HTTP \(code)），请稍后再试"
         case .http(let code): "服务器返回 HTTP \(code)"
         case .missingChecksum: "发布页没有提供校验值，已放弃自动安装"
         case .checksumMismatch: "安装包校验失败（sha256 不一致），已丢弃"
@@ -114,42 +115,107 @@ public nonisolated enum UpdateError: LocalizedError {
     }
 }
 
+/// versions.json 里的一条版本记录（由发布工作流生成）。
+public nonisolated struct VersionEntry: Codable, Equatable, Sendable {
+    public var version: String
+    public var prerelease: Bool
+    public var notes: String
+    public var page: URL
+    public var dmgName: String
+    public var dmgURL: URL
+    public var dmgSize: Int
+    public var sha256: String?
+    public var sha256URL: URL?
+
+    enum CodingKeys: String, CodingKey {
+        case version, prerelease, notes, page, sha256
+        case dmgName = "dmg_name"
+        case dmgURL = "dmg_url"
+        case dmgSize = "dmg_size"
+        case sha256URL = "sha256_url"
+    }
+
+    public init(version: String, prerelease: Bool, notes: String, page: URL, dmgName: String, dmgURL: URL, dmgSize: Int, sha256: String?, sha256URL: URL?) {
+        self.version = version
+        self.prerelease = prerelease
+        self.notes = notes
+        self.page = page
+        self.dmgName = dmgName
+        self.dmgURL = dmgURL
+        self.dmgSize = dmgSize
+        self.sha256 = sha256
+        self.sha256URL = sha256URL
+    }
+}
+
 public nonisolated enum UpdateChecker {
     public static let repo = "jrainlau/ergo"
+    /// 首选：发布工作流维护的静态清单，走 CDN，不受 GitHub API 的 60 次/小时（按 IP）限流影响。
+    public static let manifestURL = URL(string: "https://raw.githubusercontent.com/\(repo)/versions/versions.json")!
+    /// 兜底：Releases API（未登录时按 IP 限流，容易 403）。
     public static let releasesURL = URL(string: "https://api.github.com/repos/\(repo)/releases?per_page=30")!
 
-    public static func fetchReleases(session: URLSession = .shared) async throws -> [GitHubRelease] {
-        var request = URLRequest(url: releasesURL, timeoutInterval: 20)
-        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+    private static func get(_ url: URL, accept: String, session: URLSession) async throws -> Data {
+        var request = URLRequest(url: url, timeoutInterval: 20)
+        request.setValue(accept, forHTTPHeaderField: "Accept")
         request.setValue("Ergo-Updater", forHTTPHeaderField: "User-Agent")
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         let (data, response) = try await session.data(for: request)
         if let http = response as? HTTPURLResponse, http.statusCode != 200 {
             throw UpdateError.http(http.statusCode)
         }
+        return data
+    }
+
+    public static func fetchManifest(session: URLSession = .shared) async throws -> [VersionEntry] {
+        let data = try await get(manifestURL, accept: "application/json", session: session)
+        return try JSONDecoder().decode([VersionEntry].self, from: data)
+    }
+
+    public static func fetchReleases(session: URLSession = .shared) async throws -> [GitHubRelease] {
+        let data = try await get(releasesURL, accept: "application/vnd.github+json", session: session)
         return try JSONDecoder().decode([GitHubRelease].self, from: data)
     }
 
-    /// 在所有 Release 中挑出版本号最大、且高于当前版本的那个。
-    /// 按版本号而不是发布时间排序：GitHub 返回顺序可能与版本顺序不一致。
-    public static func pickUpdate(from releases: [GitHubRelease], current: AppVersion, includePrereleases: Bool) -> UpdateInfo? {
-        var best: (AppVersion, GitHubRelease, GitHubRelease.Asset)?
-        for r in releases where !r.draft && (includePrereleases || !r.prerelease) {
-            guard let v = AppVersion(r.tagName), v > current,
-                  let dmg = r.assets.first(where: { $0.name.hasSuffix(".dmg") }) else { continue }
-            if best == nil || v > best!.0 { best = (v, r, dmg) }
+    /// 先读 versions.json，失败（尚未生成、网络问题等）再退回 Releases API。
+    /// 两者都失败时抛出 API 的错误（通常更有信息量）。
+    public static func findUpdate(current: AppVersion, includePrereleases: Bool, session: URLSession = .shared) async throws -> UpdateInfo? {
+        if let entries = try? await fetchManifest(session: session), !entries.isEmpty {
+            return pickUpdate(from: entries, current: current, includePrereleases: includePrereleases)
         }
-        guard let (v, r, dmg) = best else { return nil }
-        let digest = dmg.digest.flatMap { $0.hasPrefix("sha256:") ? String($0.dropFirst(7)) : nil }
+        let releases = try await fetchReleases(session: session)
+        return pickUpdate(from: releases, current: current, includePrereleases: includePrereleases)
+    }
+
+    public static func entries(from releases: [GitHubRelease]) -> [VersionEntry] {
+        releases.compactMap { r in
+            guard !r.draft, let dmg = r.assets.first(where: { $0.name.hasSuffix(".dmg") }) else { return nil }
+            let digest = dmg.digest.flatMap { $0.hasPrefix("sha256:") ? String($0.dropFirst(7)) : nil }
+            return VersionEntry(
+                version: r.tagName, prerelease: r.prerelease, notes: r.body ?? "", page: r.htmlURL,
+                dmgName: dmg.name, dmgURL: dmg.browserDownloadURL, dmgSize: dmg.size,
+                sha256: digest?.lowercased(),
+                sha256URL: r.assets.first(where: { $0.name == dmg.name + ".sha256" })?.browserDownloadURL
+            )
+        }
+    }
+
+    public static func pickUpdate(from releases: [GitHubRelease], current: AppVersion, includePrereleases: Bool) -> UpdateInfo? {
+        pickUpdate(from: entries(from: releases), current: current, includePrereleases: includePrereleases)
+    }
+
+    /// 挑出版本号最大、且高于当前版本的那条。按版本号而不是列表顺序排序。
+    public static func pickUpdate(from entries: [VersionEntry], current: AppVersion, includePrereleases: Bool) -> UpdateInfo? {
+        var best: (AppVersion, VersionEntry)?
+        for e in entries where includePrereleases || !e.prerelease {
+            guard let v = AppVersion(e.version), v > current else { continue }
+            if best == nil || v > best!.0 { best = (v, e) }
+        }
+        guard let (v, e) = best else { return nil }
         return UpdateInfo(
-            version: v,
-            isPrerelease: r.prerelease,
-            notes: r.body ?? "",
-            pageURL: r.htmlURL,
-            dmgName: dmg.name,
-            dmgURL: dmg.browserDownloadURL,
-            dmgSize: dmg.size,
-            sha256: digest?.lowercased(),
-            checksumFileURL: r.assets.first(where: { $0.name == dmg.name + ".sha256" })?.browserDownloadURL
+            version: v, isPrerelease: e.prerelease, notes: e.notes, pageURL: e.page,
+            dmgName: e.dmgName, dmgURL: e.dmgURL, dmgSize: e.dmgSize,
+            sha256: e.sha256?.lowercased(), checksumFileURL: e.sha256URL
         )
     }
 

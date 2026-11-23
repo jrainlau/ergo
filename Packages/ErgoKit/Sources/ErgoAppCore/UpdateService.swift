@@ -66,10 +66,10 @@ final class UpdateService {
         defer { busy = false }
         setStatus("正在检查更新…", busy: true)
         do {
-            let releases = try await UpdateChecker.fetchReleases()
-            settings.value.lastCheck = Date()
             let current = Self.currentVersion
-            guard let info = UpdateChecker.pickUpdate(from: releases, current: current, includePrereleases: settings.value.includePrereleases) else {
+            let found = try await UpdateChecker.findUpdate(current: current, includePrereleases: settings.value.includePrereleases)
+            settings.value.lastCheck = Date()
+            guard let info = found else {
                 setStatus("已是最新版本（\(current)）", busy: false)
                 if userInitiated { alert("已是最新版本", "当前版本 \(current) 已是最新。") }
                 return

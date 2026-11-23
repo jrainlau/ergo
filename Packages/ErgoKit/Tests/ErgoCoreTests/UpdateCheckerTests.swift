@@ -65,4 +65,24 @@ import Testing
         let s = try JSONDecoder().decode(UpdateSettingsData.self, from: Data("{}".utf8))
         #expect(s.autoCheck && s.includePrereleases && s.lastCheck == nil)
     }
+
+    @Test func decodesVersionsManifest() throws {
+        let json = """
+        [{"version":"0.1.14","prerelease":false,"notes":"n","page":"https://github.com/jrainlau/ergo/releases/tag/0.1.14",
+        "dmg_name":"Ergo-0.1.14.dmg","dmg_url":"https://github.com/x/Ergo-0.1.14.dmg","dmg_size":42,"sha256":"AB","sha256_url":null},
+        {"version":"0.1.9","prerelease":true,"notes":"","page":"https://github.com/jrainlau/ergo/releases/tag/0.1.9",
+        "dmg_name":"Ergo-0.1.9.dmg","dmg_url":"https://github.com/x/Ergo-0.1.9.dmg","dmg_size":1,"sha256":null,"sha256_url":"https://github.com/x/a.sha256"}]
+        """
+        let es = try JSONDecoder().decode([VersionEntry].self, from: Data(json.utf8))
+        #expect(es.count == 2)
+        let info = UpdateChecker.pickUpdate(from: es, current: AppVersion("0.1.10")!, includePrereleases: false)
+        #expect(info?.version == AppVersion("0.1.14"))
+        #expect(info?.sha256 == "ab")
+        #expect(UpdateChecker.pickUpdate(from: es, current: AppVersion("0.1.14")!, includePrereleases: true) == nil)
+    }
+
+    @Test func rateLimitErrorIsReadable() {
+        #expect(UpdateError.http(403).errorDescription?.contains("频繁") == true)
+        #expect(UpdateError.http(500).errorDescription?.contains("500") == true)
+    }
 }

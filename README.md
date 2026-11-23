@@ -138,11 +138,11 @@ CI 构建使用 ad-hoc 签名；如果以后有 Developer ID 证书，可以在�
 
 ## 应用内自动更新
 
-应用每 6 小时（以及启动后约 20 秒）请求一次 GitHub Releases API（`https://api.github.com/repos/jrainlau/ergo/releases`），按版本号挑出最新的 `x.y.z` Release；比当前版本新时，下载其 DMG，用 Release 附件的 sha256 校验，再校验 `.app` 的签名、Bundle ID 和版本号，然后询问是否更新。确认后应用退出，由一个独立的 shell 脚本替换 `.app`（失败则回滚）、去除隔离属性并重新启动。应用内下载不带隔离属性，所以更新不会再触发“仍要打开”。
+应用每 6 小时（以及启动后约 20 秒）读取一次 `versions` 分支上的 `versions.json`（`raw.githubusercontent.com`，走 CDN，不受 GitHub API 未登录 60 次/小时限流影响），读不到时退回 GitHub Releases API，按版本号挑出最新的 `x.y.z` 版本；比当前版本新时，下载其 DMG，用 Release 附件的 sha256 校验，再校验 `.app` 的签名、Bundle ID 和版本号，然后询问是否更新。确认后应用退出，由一个独立的 shell 脚本替换 `.app`（失败则回滚）、去除隔离属性并重新启动。应用内下载不带隔离属性，所以更新不会再触发“仍要打开”。
 
 - 设置 › 关于 › 更新：开关自动检查、是否包含预发布版本（默认包含；目前推送到 `main` 的构建都是正式版本）、手动检查。菜单栏菜单里也有「检查更新…」。
 - 只有安装在 `/Applications` 或 `~/Applications` 且有写权限时才会自动替换，否则只会打开 DMG 让你手动安装；Debug 构建不会自动检查。
-- 版本信息直接来自 Releases API（含 DMG 地址、sha256、更新说明），不需要额外维护 `versions.json`。
+- `versions.json` 由发布工作流在每次发布后用 `scripts/gen-versions.py` 从全部 Release 重新生成并推送到 `versions` 分支（含 DMG 地址、sha256、更新说明），无需手动维护。
 
 ## 本地打 DMG
 
