@@ -159,7 +159,7 @@ final class UpdateService {
         try? FileManager.default.removeItem(at: staging)
         try FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
         let newApp = staging.appendingPathComponent("Ergo.app")
-        try await Self.extractApp(from: dmg, to: newApp, expectedVersion: info.version)
+        try await Self.extractApp(from: dmg, to: newApp, expectedVersion: info.version, bundleID: ErgoPaths.bundleID)
 
         let script = staging.appendingPathComponent("swap.sh")
         try Self.swapScript.write(to: script, atomically: true, encoding: .utf8)
@@ -176,7 +176,7 @@ final class UpdateService {
 
     /// 挂载 DMG，拷出 Ergo.app 并校验签名、Bundle ID 与版本号。
     @concurrent
-    private static func extractApp(from dmg: URL, to dest: URL, expectedVersion: AppVersion) async throws {
+    private static func extractApp(from dmg: URL, to dest: URL, expectedVersion: AppVersion, bundleID: String) async throws {
         let mount = FileManager.default.temporaryDirectory.appendingPathComponent("ergo-update-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: mount, withIntermediateDirectories: true)
         _ = try run("/usr/bin/hdiutil", ["attach", "-nobrowse", "-readonly", "-noverify", "-noautoopen", "-mountpoint", mount.path, dmg.path])
@@ -190,7 +190,7 @@ final class UpdateService {
         _ = try run("/usr/bin/codesign", ["--verify", "--deep", "--strict", dest.path])
 
         let plist = NSDictionary(contentsOf: dest.appendingPathComponent("Contents/Info.plist"))
-        guard plist?["CFBundleIdentifier"] as? String == ErgoPaths.bundleID else { throw UpdateError.badPackage("Bundle ID 不匹配") }
+        guard plist?["CFBundleIdentifier"] as? String == bundleID else { throw UpdateError.badPackage("Bundle ID 不匹配") }
         guard let v = plist?["CFBundleShortVersionString"] as? String, AppVersion(v) == expectedVersion else {
             throw UpdateError.badPackage("版本号与发布页不一致")
         }
