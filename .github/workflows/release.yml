@@ -1,7 +1,7 @@
 name: Build & Release
 
 # 版本号一律是 x.y.z，tag 也是 x.y.z（不带 v 前缀）。
-# 推送到 main：版本为 <project.yml 的 MARKETING_VERSION 的 x.y>.<本次运行序号>，发布为预发布版本。
+# 推送到 main：版本为 <project.yml 的 MARKETING_VERSION 的 x.y>.<本次运行序号>，发布为正式版本。
 # 推送 x.y.z 标签（如 0.2.0）：以标签为版本，发布为正式版本。
 on:
   push:
@@ -44,7 +44,7 @@ jobs:
           else
             BASE=$(grep -E '^\s+MARKETING_VERSION:' project.yml | sed -E 's/.*"([^"]+)".*/\1/')
             VERSION="${BASE%.*}.${GITHUB_RUN_NUMBER}"
-            PRERELEASE=true
+            PRERELEASE=false
           fi
           if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "版本号必须是 x.y.z，得到：$VERSION" >&2

@@ -128,7 +128,7 @@ Packages/ErgoKit/
 
 | 触发 | 结果 |
 |---|---|
-| 推送到 `main` | 运行测试，构建 Release，打包 DMG，发布预发布版本，版本号和 tag 都是 `x.y.<序号>`（如 `0.1.37`） |
+| 推送到 `main` | 运行测试，构建 Release，打包 DMG，发布正式版本，版本号和 tag 都是 `x.y.<序号>`（如 `0.1.37`） |
 | 推送 `x.y.z` 标签（如 `git tag 0.2.0 && git push origin 0.2.0`） | 同上，但以标签为版本号，发布为正式版本 |
 | 手动运行（workflow_dispatch） | 同推送到 `main` |
 
@@ -140,7 +140,7 @@ CI 构建使用 ad-hoc 签名；如果以后有 Developer ID 证书，可以在�
 
 应用每 6 小时（以及启动后约 20 秒）请求一次 GitHub Releases API（`https://api.github.com/repos/jrainlau/ergo/releases`），按版本号挑出最新的 `x.y.z` Release；比当前版本新时，下载其 DMG，用 Release 附件的 sha256 校验，再校验 `.app` 的签名、Bundle ID 和版本号，然后询问是否更新。确认后应用退出，由一个独立的 shell 脚本替换 `.app`（失败则回滚）、去除隔离属性并重新启动。应用内下载不带隔离属性，所以更新不会再触发“仍要打开”。
 
-- 设置 › 关于 › 更新：开关自动检查、是否包含预发布版本（默认包含，因为推送到 `main` 的构建都是预发布）、手动检查。菜单栏菜单里也有「检查更新…」。
+- 设置 › 关于 › 更新：开关自动检查、是否包含预发布版本（默认包含；目前推送到 `main` 的构建都是正式版本）、手动检查。菜单栏菜单里也有「检查更新…」。
 - 只有安装在 `/Applications` 或 `~/Applications` 且有写权限时才会自动替换，否则只会打开 DMG 让你手动安装；Debug 构建不会自动检查。
 - 版本信息直接来自 Releases API（含 DMG 地址、sha256、更新说明），不需要额外维护 `versions.json`。
 
