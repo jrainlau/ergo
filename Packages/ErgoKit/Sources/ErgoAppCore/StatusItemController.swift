@@ -10,6 +10,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private let services: CoreServices
     var onOpenLauncher: () -> Void = {}
     var onOpenSettings: () -> Void = {}
+    var onCheckUpdates: () -> Void = {}
     var onOpenScope: (PluginID) -> Void = { _ in }
 
     init(host: PluginHost, services: CoreServices) {
@@ -86,6 +87,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         let data = NSMenuItem(title: "打开数据目录", action: #selector(openData), keyEquivalent: "")
         data.target = self
         menu.addItem(data)
+
+        let update = NSMenuItem(title: "检查更新…", action: #selector(checkUpdates), keyEquivalent: "")
+        update.target = self
+        menu.addItem(update)
         menu.addItem(.separator())
         menu.addItem(withTitle: "退出 Ergo", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
@@ -93,5 +98,6 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func openLauncher() { onOpenLauncher() }
     @objc private func openSettings() { onOpenSettings() }
     @objc private func openClipboard() { onOpenScope("ergo.clipboard") }
+    @objc private func checkUpdates() { onCheckUpdates() }
     @objc private func openData() { NSWorkspace.shared.open(ErgoPaths.appSupport) }
 }

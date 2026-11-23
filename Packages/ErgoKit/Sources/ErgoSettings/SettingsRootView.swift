@@ -36,7 +36,7 @@ struct SettingsRootView: View {
                 if let reg = host.registration(for: id) {
                     PluginDetailView(host: host, registration: reg, services: services, nav: nav).id(id)
                 }
-            case .about: AboutPage()
+            case .about: AboutPage(settings: services.updateSettings, updates: services.updates)
             }
         }
         .frame(minWidth: 760, minHeight: 520)

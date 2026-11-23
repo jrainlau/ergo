@@ -1,6 +1,6 @@
 #!/bin/zsh
 # 用法：scripts/make-dmg.sh <Ergo.app 路径> <输出 dmg 路径>
-# 生成带 “Applications” 快捷方式的 dmg。仅依赖系统自带的 hdiutil。
+# 生成带 “Applications” 快捷方式和 “安装 Ergo.command”（解除隔离）的 dmg。仅依赖系统自带的 hdiutil。
 set -euo pipefail
 
 APP="${1:?用法: make-dmg.sh <Ergo.app> <输出.dmg>}"
@@ -13,6 +13,8 @@ trap 'rm -rf "$STAGE"' EXIT
 
 cp -R "$APP" "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
+cp -p "$(dirname "$0")/dmg/安装 Ergo.command" "$STAGE/"
+chmod +x "$STAGE/安装 Ergo.command"
 
 mkdir -p "$(dirname "$OUT")"
 rm -f "$OUT"

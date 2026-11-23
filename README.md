@@ -11,9 +11,9 @@
 
 ### 下载 DMG（推荐）
 
-到 [Releases](https://github.com/jrainlau/ergo/releases) 下载最新的 `Ergo-x.y.z.dmg`，打开后把 **Ergo** 拖进「应用程序」。
+到 [Releases](https://github.com/jrainlau/ergo/releases) 下载最新的 `Ergo-x.y.z.dmg`，打开后**双击「安装 Ergo.command」**：脚本会把 **Ergo** 装进「应用程序」、解除 Gatekeeper 隔离并启动。也可以先手动把 Ergo 拖进「应用程序」，再双击该脚本。
 
-发布的构建使用 ad-hoc 签名（没有 Apple 开发者证书），首次打开会被 Gatekeeper 拦截。在终端执行一次：
+发布的构建使用 ad-hoc 签名（没有 Apple 开发者证书），首次打开会被 Gatekeeper 拦截；脚本做的就是下面这条命令，不想用脚本也可以自己在终端执行一次：
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/Ergo.app
@@ -91,7 +91,7 @@ make test                 # 运行 ErgoKit 的全部测试
 ```
 App/                    应用入口、Info.plist、资源（图标、String Catalog）
 Config/                 xcconfig（本地签名配置 Signing.local.xcconfig 不入库）
-scripts/                run.sh 启动脚本、make-dmg.sh 打包 DMG
+scripts/                run.sh 启动脚本、make-dmg.sh 打包 DMG、dmg/ 放进 DMG 的安装脚本
 docs/                   文档
 .github/workflows/      发布工作流
 Packages/ErgoKit/
@@ -120,6 +120,14 @@ Packages/ErgoKit/
 DMG 与对应的 `.sha256` 会作为 Release 附件上传，同时保存为 Actions 构建产物。版本号和 tag 一律是 `x.y.z`，**不带 `v` 前缀**，不符合格式的标签会让构建失败。推送到 `main` 时，`x.y` 取自 `project.yml` 里的 `MARKETING_VERSION`，`z` 是工作流的运行序号；要升 `x.y` 就改这个值。构建时版本号会写入应用本身（`CFBundleShortVersionString`），所以应用里显示的版本和 tag 一致。
 
 CI 构建使用 ad-hoc 签名；如果以后有 Developer ID 证书，可以在工作流里加上签名和公证步骤，用户就不再需要手动去除隔离属性了。
+
+## 应用内自动更新
+
+应用每 6 小时（以及启动后约 20 秒）请求一次 GitHub Releases API（`https://api.github.com/repos/jrainlau/ergo/releases`），按版本号挑出最新的 `x.y.z` Release；比当前版本新时，下载其 DMG，用 Release 附件的 sha256 校验，再校验 `.app` 的签名、Bundle ID 和版本号，然后询问是否更新。确认后应用退出，由一个独立的 shell 脚本替换 `.app`（失败则回滚）、去除隔离属性并重新启动。应用内下载不带隔离属性，所以更新不会再触发“仍要打开”。
+
+- 设置 › 关于 › 更新：开关自动检查、是否包含预发布版本（默认包含，因为推送到 `main` 的构建都是预发布）、手动检查。菜单栏菜单里也有「检查更新…」。
+- 只有安装在 `/Applications` 或 `~/Applications` 且有写权限时才会自动替换，否则只会打开 DMG 让你手动安装；Debug 构建不会自动检查。
+- 版本信息直接来自 Releases API（含 DMG 地址、sha256、更新说明），不需要额外维护 `versions.json`。
 
 ## 本地打 DMG
 

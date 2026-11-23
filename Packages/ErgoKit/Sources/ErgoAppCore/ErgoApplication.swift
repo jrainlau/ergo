@@ -26,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var launcher: LauncherWindowController!
     private var hotkeys: HotkeyService!
     private var statusItem: StatusItemController!
+    private var updater: UpdateService!
     private var settingsController: SettingsWindowController!
     private var onboarding: OnboardingWindowController?
     private var lastDoubleTapInterval: Double = -1
@@ -54,8 +55,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = StatusItemController(host: host, services: services)
         statusItem.onOpenLauncher = { [weak self] in self?.launcher.show(scope: nil, query: nil) }
         statusItem.onOpenSettings = { [weak self] in self?.openSettings() }
+        statusItem.onCheckUpdates = { [weak self] in self?.updater.checkNow() }
         statusItem.onOpenScope = { [weak self] id in self?.launcher.show(scope: id, query: nil) }
         launcher.model.contextMenuProvider = { [weak self] in self?.statusItem.buildMenu() ?? NSMenu() }
+
+        updater = UpdateService(services: services)
+        updater.start()
 
         applySettings()
         observeContinuously(

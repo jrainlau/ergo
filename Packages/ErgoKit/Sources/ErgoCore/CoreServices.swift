@@ -13,6 +13,8 @@ public final class CoreServices {
     public let frontApp: FrontAppTracker
     public let paste: PasteService
     public let launcher: LauncherBridge
+    public let updateSettings: SettingsBox<UpdateSettingsData>
+    public let updates: UpdateBridge
 
     public init(defaults: UserDefaults = .standard, databaseURL: URL? = ErgoPaths.databaseURL, keychainService: String = ErgoPaths.bundleID) {
         let store = SettingsStore(defaults: defaults)
@@ -26,5 +28,7 @@ public final class CoreServices {
         frontApp = FrontAppTracker()
         paste = PasteService(frontApp: frontApp, hud: hud)
         launcher = LauncherBridge()
+        updateSettings = SettingsBox(store: store, key: "ergo.update.settings", default: UpdateSettingsData())
+        updates = UpdateBridge()
     }
 }

@@ -87,6 +87,9 @@ struct AppearancePage: View {
 }
 
 struct AboutPage: View {
+    @Bindable var settings: SettingsBox<UpdateSettingsData>
+    let updates: UpdateBridge
+
     var body: some View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.1.0"
         Form {
@@ -95,6 +98,21 @@ struct AboutPage: View {
                 LabeledContent("数据目录") {
                     Button("在访达中打开") { NSWorkspace.shared.open(ErgoPaths.appSupport) }
                 }
+            }
+            Section {
+                Toggle("自动检查更新", isOn: $settings.value.autoCheck)
+                Toggle("包含预发布版本", isOn: $settings.value.includePrereleases)
+                LabeledContent {
+                    Button("检查更新") { updates.onCheckNow() }
+                        .disabled(updates.isBusy)
+                } label: {
+                    Text(updates.status.isEmpty ? "每 6 小时检查一次 GitHub Releases" : updates.status)
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("更新")
+            } footer: {
+                Text("发现新版本后会先下载并校验，经你确认后自动替换并重启。")
             }
             Section("排查问题") {
                 Text("在终端中运行以下命令查看实时日志：")
