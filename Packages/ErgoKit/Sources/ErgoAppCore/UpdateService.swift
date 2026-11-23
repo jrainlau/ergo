@@ -1,6 +1,7 @@
 import AppKit
 import CryptoKit
 import ErgoCore
+import ErgoPluginKit
 import OSLog
 
 /// 应用内自动更新：定时轮询 GitHub Releases，下载并校验 DMG，退出后由独立脚本替换 .app 并重新启动。
