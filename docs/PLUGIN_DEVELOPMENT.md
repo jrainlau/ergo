@@ -1,6 +1,6 @@
 # Ergo 插件开发指南
 
-Ergo 的所有功能都是插件。内置的计算器、应用启动、文件搜索、汇率、剪贴板、常用语、AI 问答都用同一套接口写成，所以本文的内容也就是它们的写法。
+Ergo 的所有功能都是插件。内置的计算器、应用启动、文件搜索、汇率、剪贴板、常用语、AI 问答、翻译都用同一套接口写成，所以本文的内容也就是它们的写法。
 
 > 本文以仓库里的实际代码为准，文中的示例代码都在当前 SDK 上编译通过。接口定义在 `Packages/ErgoKit/Sources/ErgoPluginKit/`，读不懂的地方直接看源码，不到 500 行。
 
@@ -323,6 +323,7 @@ PluginManifest(
 3. 返回 `true` 的 provider 并发执行 `search(_:)`，**每个最多 1.5 秒**，超时自动取消并视为无结果。
 4. 结果按 `tier` 分组，组内按 `score × 0.8 + 使用频率加成` 排序。
 5. `participation` 为 `.fallback` 的 provider 只在**所有 `.global` provider 都没有结果**时才运行，且最多显示 `maxItems` 条。
+6. `participation` 为 `.trailing` 的 provider 总是运行，但它的结果**不算命中**：不会阻止 `.fallback` 的 provider，超时放宽到 20 秒（翻译插件用它：有应用等强匹配时排在后面，没有时排第一）。
 
 ```swift
 @MainActor
@@ -357,6 +358,7 @@ public protocol SearchProvider: AnyObject {
 public enum SearchParticipation {
     case global                                          // 总是参与
     case fallback(maxItems: Int, minQueryLength: Int)    // 没有别的结果时才参与
+    case trailing                                        // 总是参与，但不算作“命中”
     case none
 }
 
@@ -954,4 +956,5 @@ PermissionRequirement(permission:reason:isRequired:)
 | 内联面板、网络请求与缓存 | `PluginCurrency` |
 | 数据库、后台监听、`listWithPreview`、双击修饰键快捷键 | `PluginClipboard` |
 | 管理界面、占位符展开、导入导出、从作用域跳到管理界面 | `PluginSnippets` |
+| `.trailing` 参与方式、可扩展的多引擎（系统词典、系统翻译、大模型）、去抖 | `PluginTranslate` |
 | 自定义界面、流式网络请求、钥匙串、多提供商配置 | `PluginAIChat` |

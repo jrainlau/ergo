@@ -53,13 +53,14 @@ let package = Package(
         plugin("PluginCurrency"),
         plugin("PluginSnippets", extra: [grdb]),
         plugin("PluginAIChat", extra: [grdb, markdown]),
+        plugin("PluginTranslate"),
 
         .target(
             name: "ErgoAppCore",
             dependencies: [
                 kit, support, ui, "ErgoCore", "ErgoLauncher", "ErgoSettings", shortcuts,
                 "PluginCalculator", "PluginAppLauncher", "PluginFileSearch", "PluginClipboard",
-                "PluginCurrency", "PluginSnippets", "PluginAIChat",
+                "PluginCurrency", "PluginSnippets", "PluginAIChat", "PluginTranslate",
             ],
             resources: res,
             swiftSettings: common
@@ -75,5 +76,6 @@ let package = Package(
         tests("PluginAIChatTests", ["PluginAIChat", kit, support]),
         tests("PluginAppLauncherTests", ["PluginAppLauncher", kit, support]),
         tests("PluginSnippetsTests", ["PluginSnippets", kit, support]),
+        tests("PluginTranslateTests", ["PluginTranslate", kit, support]),
     ]
 )

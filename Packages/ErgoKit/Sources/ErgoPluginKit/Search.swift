@@ -23,6 +23,10 @@ public struct SearchQuery: Sendable {
 public enum SearchParticipation: Sendable {
     case global
     case fallback(maxItems: Int, minQueryLength: Int)
+    /// 总是参与，但不算作“命中”：不会阻止 `.fallback` 的 provider 运行。
+    /// 结果按 `tier` 与其他结果一起排序（翻译插件用 `.fallback` 层级：有应用等强命中时排在它们后面，没有时排第一）。
+    /// 因为可能做网络请求，搜索的超时放宽到 20 秒。
+    case trailing
     case none
 }
 

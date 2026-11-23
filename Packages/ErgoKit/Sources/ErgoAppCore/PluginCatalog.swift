@@ -6,6 +6,7 @@ import PluginClipboard
 import PluginCurrency
 import PluginFileSearch
 import PluginSnippets
+import PluginTranslate
 
 /// 所有内置插件。新增插件只需在这里加一行。
 @MainActor
@@ -18,5 +19,6 @@ enum PluginCatalog {
         ClipboardPlugin.self,
         SnippetsPlugin.self,
         AIChatPlugin.self,
+        TranslatePlugin.self,
     ]
 }

@@ -53,6 +53,7 @@ public final class LauncherModel {
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored private var providerItems: [PluginID: (tier: ResultTier, items: [ResultItem])] = [:]
     @ObservationIgnored private var pendingPrimary = 0
+    @ObservationIgnored private var trailingIDs: Set<PluginID> = []
     @ObservationIgnored private var selectionAnchorID: String?
     @ObservationIgnored var lastMouseLocation: NSPoint = .zero
 
@@ -206,15 +207,19 @@ public final class LauncherModel {
 
         var primary: [(PluginID, any SearchProvider)] = []
         var fallbacks: [(PluginID, any SearchProvider, Int, Int)] = []
+        var trailing: [(PluginID, any SearchProvider)] = []
         for reg in host.activeRegistrations {
             guard let p = reg.instance?.searchProvider, p.canHandle(sq) else { continue }
             switch p.participation {
             case .global: primary.append((reg.id, p))
             case .fallback(let maxItems, let minLen): fallbacks.append((reg.id, p, maxItems, minLen))
+            case .trailing: trailing.append((reg.id, p))
             case .none: break
             }
         }
         pendingPrimary = primary.count
+        trailingIDs = Set(trailing.map(\.0))
+        runTrailing(trailing, sq: sq, seq: seq)
         if primary.isEmpty { runFallbacks(fallbacks, sq: sq, seq: seq); return }
 
         for (pid, provider) in primary {
@@ -228,7 +233,7 @@ public final class LauncherModel {
                 }
                 self.pendingPrimary -= 1
                 self.rebuild(query: sq, keepSelection: true)
-                if self.pendingPrimary == 0, self.results.isEmpty, self.inlinePanel == nil {
+                if self.pendingPrimary == 0, !self.hasPrimaryHit, self.inlinePanel == nil {
                     self.runFallbacks(fallbacks, sq: sq, seq: seq)
                 }
             }
@@ -236,15 +241,39 @@ public final class LauncherModel {
         }
     }
 
-    private static func runWithTimeout(_ provider: any SearchProvider, _ sq: SearchQuery) async -> SearchOutput {
+    /// 是否已有“强命中”（不计 `.trailing` 的结果）。
+    private var hasPrimaryHit: Bool {
+        providerItems.contains { !trailingIDs.contains($0.key) && !$0.value.items.isEmpty }
+    }
+
+    private static func runWithTimeout(_ provider: any SearchProvider, _ sq: SearchQuery, timeout: Duration = .milliseconds(1500)) async -> SearchOutput {
         let work = Task { @MainActor in try? await provider.search(sq) }
-        let timeout = Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(1500))
+        let timer = Task { @MainActor in
+            try? await Task.sleep(for: timeout)
             work.cancel()
         }
-        let r = await work.value
-        timeout.cancel()
+        let r = await withTaskCancellationHandler {
+            await work.value
+        } onCancel: {
+            work.cancel()
+            timer.cancel()
+        }
+        timer.cancel()
         return r ?? .none
+    }
+
+    private func runTrailing(_ list: [(PluginID, any SearchProvider)], sq: SearchQuery, seq: UInt64) {
+        for (pid, provider) in list {
+            let t = Task { @MainActor [weak self] in
+                let out = await Self.runWithTimeout(provider, sq, timeout: .seconds(20))
+                guard let self, !Task.isCancelled, self.sequence == seq else { return }
+                if case .items(let items) = out, !items.isEmpty {
+                    self.providerItems[pid] = (provider.tier, items)
+                    self.rebuild(query: sq, keepSelection: true)
+                }
+            }
+            tasks.append(t)
+        }
     }
 
     private func runFallbacks(_ list: [(PluginID, any SearchProvider, Int, Int)], sq: SearchQuery, seq: UInt64) {
