@@ -1,0 +1,145 @@
+[
+  {
+    "version": "0.2.18",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.2.18",
+    "dmg_name": "Ergo-0.2.18.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.2.18/Ergo-0.2.18.dmg",
+    "dmg_size": 4412463,
+    "sha256": "9272166bfb612a17ca3061f0a58caec80e1916178d51de58e70aa24c9c802b70",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.2.18/Ergo-0.2.18.dmg.sha256"
+  },
+  {
+    "version": "0.2.0",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.2.0",
+    "dmg_name": "Ergo-0.2.0.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.2.0/Ergo-0.2.0.dmg",
+    "dmg_size": 4411781,
+    "sha256": "5b95841f0ed3aa4cf387ab2c9a1afb40b385e39cf4b36bf17efaa2a73c4da230",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.2.0/Ergo-0.2.0.dmg.sha256"
+  },
+  {
+    "version": "0.1.15",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.15",
+    "dmg_name": "Ergo-0.1.15.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.15/Ergo-0.1.15.dmg",
+    "dmg_size": 4411832,
+    "sha256": "15d214e7a6d7d2f9ea0abe287f1c4715ff661a43aa8575a3b756d4aad6865d5d",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.15/Ergo-0.1.15.dmg.sha256"
+  },
+  {
+    "version": "0.1.14",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.14",
+    "dmg_name": "Ergo-0.1.14.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.14/Ergo-0.1.14.dmg",
+    "dmg_size": 4400083,
+    "sha256": "86a8465056634cc352d4fdc33b624c47e85aada41e38cebe45ce5336d77ff7c5",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.14/Ergo-0.1.14.dmg.sha256"
+  },
+  {
+    "version": "0.1.13",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.13",
+    "dmg_name": "Ergo-0.1.13.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.13/Ergo-0.1.13.dmg",
+    "dmg_size": 4400085,
+    "sha256": "a75229388a37c568309f43b2474e55bab840e41ada3b00205185ddde2cf4e3a6",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.13/Ergo-0.1.13.dmg.sha256"
+  },
+  {
+    "version": "0.1.12",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.12",
+    "dmg_name": "Ergo-0.1.12.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.12/Ergo-0.1.12.dmg",
+    "dmg_size": 4193224,
+    "sha256": "02902cdb9cf48801786b3e09b60e3f16c20aa09c3c3400037b3801124889f5f8",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.12/Ergo-0.1.12.dmg.sha256"
+  },
+  {
+    "version": "0.1.8",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.8",
+    "dmg_name": "Ergo-0.1.8.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.8/Ergo-0.1.8.dmg",
+    "dmg_size": 4129900,
+    "sha256": "fb59bb5b109fcd5e46e37ea6e89e2b9108effab0382daa8db6f793b4bdd083dd",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.8/Ergo-0.1.8.dmg.sha256"
+  },
+  {
+    "version": "0.1.7",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.7",
+    "dmg_name": "Ergo-0.1.7.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.7/Ergo-0.1.7.dmg",
+    "dmg_size": 4132290,
+    "sha256": "6264ab6c92c733f60cd2b91c46b511f67a7a7f58749d62509bd9b91096da2075",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.7/Ergo-0.1.7.dmg.sha256"
+  },
+  {
+    "version": "0.1.6",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.6",
+    "dmg_name": "Ergo-0.1.6.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.6/Ergo-0.1.6.dmg",
+    "dmg_size": 4135512,
+    "sha256": "cbfbfbc6e6713f471bed4d25bae50a44ea9806f1435f03f620fcdf3807d9e22c",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.6/Ergo-0.1.6.dmg.sha256"
+  },
+  {
+    "version": "0.1.4",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.4",
+    "dmg_name": "Ergo-0.1.4.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.4/Ergo-0.1.4.dmg",
+    "dmg_size": 4135904,
+    "sha256": "080fff5f5dfad71a04633aceb25c45ac0604b6373dd8aead6eb07b310c97f476",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.4/Ergo-0.1.4.dmg.sha256"
+  },
+  {
+    "version": "0.1.3",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.3",
+    "dmg_name": "Ergo-0.1.3.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.3/Ergo-0.1.3.dmg",
+    "dmg_size": 4129912,
+    "sha256": "fcd1a41d8b43e5aba3f2d7b4da92ba7ba82e79556e2d450d7a6990078573e7e1",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.3/Ergo-0.1.3.dmg.sha256"
+  },
+  {
+    "version": "0.1.2",
+    "prerelease": true,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.2",
+    "dmg_name": "Ergo-0.1.2.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.2/Ergo-0.1.2.dmg",
+    "dmg_size": 4136431,
+    "sha256": "1691d70f9c01ac36feaf5fa8ae009f803ab7bea10df331e4d2fa69c48f416163",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.2/Ergo-0.1.2.dmg.sha256"
+  },
+  {
+    "version": "0.1.0",
+    "prerelease": false,
+    "notes": "",
+    "page": "https://github.com/jrainlau/ergo/releases/tag/0.1.0",
+    "dmg_name": "Ergo-0.1.0.dmg",
+    "dmg_url": "https://github.com/jrainlau/ergo/releases/download/0.1.0/Ergo-0.1.0.dmg",
+    "dmg_size": 4136444,
+    "sha256": "5e40019c23788c622dc93fb460ff037f0b0d5754c1ad9e19dd7aba240d687099",
+    "sha256_url": "https://github.com/jrainlau/ergo/releases/download/0.1.0/Ergo-0.1.0.dmg.sha256"
+  }
+]
