@@ -45,7 +45,8 @@ public final class PasteService: PasteServicing {
         hideLauncher()
 
         guard AXIsProcessTrusted() else {
-            hud.show("已复制，按 ⌘V 粘贴", symbol: "doc.on.clipboard")
+            _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
+            hud.show("需要“辅助功能”权限才能自动粘贴，已复制，按 ⌘V 粘贴", symbol: "doc.on.clipboard")
             return .copiedOnly(reason: "未授予辅助功能权限")
         }
 
